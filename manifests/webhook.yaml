@@ -5,17 +5,17 @@ metadata:
 webhooks:
   - name: "validator.webhooks.svc.cluster.local"
     rules:
-      - apiGroups: [""]
-        apiVersions: ["apps"]
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
         operations: ["CREATE", "UPDATE"]
-        resources: ["Deployment"]
-        scope: "Cluster"
+        resources: ["deployments"]
+        scope: "*"
     clientConfig:
       service:
-        namespace: "webhooks"
-        name: "validator"
+        namespace: "webhook"
+        name: "webhook-server"
         path: "/validate"
       caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURIekNDQWdlZ0F3SUJBZ0lVSnVoeExDbk1Ed0JhbXdxR0RTUXRzeWo1V1Jrd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0h6RWRNQnNHQTFVRUF3d1VkbUZzYVdSaGRHVXVkMlZpYUc5dmF5NXpkbU13SGhjTk1qUXdOek13TVRNeApNREE0V2hjTk1qUXdPREk1TVRNeE1EQTRXakFmTVIwd0d3WURWUVFEREJSMllXeHBaR0YwWlM1M1pXSm9iMjlyCkxuTjJZekNDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFQTWdac0FnNFJvcXUySnUKYzcxT1ptSFY2WWVoUGcxNG01MUlpT0l2SlcxbnFIRUVjNTErcHgyVkNuZHhHc1dLNk91ZndFSnVISlFmTWlmbAo2VFpvL1g4eUIvRUFaS3lOOFBXNjNPaG1mVitCOHNCUER4VSs5QnA2b1VTOTI1WkZnanpNNzlnTVl6V2l2Y2tMCnh4TjhTdDFjN2d0UGRTYWo2WjA3RjB6VWZBTEk5cExpaE4zQmlBcHE1Mk9jcWxpd2ZWZE8zT3FKaHRWUWR6cUoKR0syWC9oSkNiTTRzckwyUmQvcmJHd28rMnlXa0xmVnRxS1JKcllQOFRkdTBlelJETWcxUk9hL2pQVk56bXd3dAo3MGJVL010TGwwS1pVSUp2b3FOYkRFV1MycmVLWk1OVWx1QlpHMk9vUDdXdzRFaS9oWGsvSmRFNHNSaVNBcGVXCmtSb09abk1DQXdFQUFhTlRNRkV3SFFZRFZSME9CQllFRlBGdHdtRENsbHVGTytJangyclN5K3Ixd0k2OE1COEcKQTFVZEl3UVlNQmFBRlBGdHdtRENsbHVGTytJangyclN5K3Ixd0k2OE1BOEdBMVVkRXdFQi93UUZNQU1CQWY4dwpEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBTU0xQU9WZEFUa2dTdXA4RXl1eHFTdmFwNVo3ZmpGb0czWjZkVkZICmwxMkEwSktTa0JkWnprVkI1UjByUjF0TFExV0NMMjE2dVZnM3IzNENIMEJoZXBabWo2d1lrSkV1aXo1eEFqSWIKblZIRlBBc1RVWTNVVkxUd2RVS2hxSVNINVl0VmFOM0JCNUlOTjZYL25YUTRDQUF2NmI5UytBdG1OUHhxbS9odQoyd0tNeHgwWFVWekVzalFzdlVLbDBlV2RxZHd6Nys0d05EMWJ2ZGhiS0hjbHUxR2pxeW1mU01wd3IrcXFaaUlWCkhVSlBTdGNVRGgyTHNXQlkyTnJpQ1RJZHhZOWRMTW9TQWh3a3BhR3Q1eGk2Vi9pY1laUW1VTkJKVlgxZmFuQVcKQ0xFYVFOWUJpM0Q3WklSWXRBWmpWZkFLMDRRMXN3cXNIOGpLNUFtSnF3TWt1SEU9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
-    admissionReviewVersions: ["v1", "v1beta1"]
+    admissionReviewVersions: ["v1"]
     sideEffects: None
     timeoutSeconds: 5

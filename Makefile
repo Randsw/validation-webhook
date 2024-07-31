@@ -1,7 +1,7 @@
 .PHONY: test
 test:
 	@echo "\n🛠️  Running unit tests..."
-	go test ./...
+	go test -v ./...
 
 .PHONY: build
 build:
@@ -30,9 +30,9 @@ delete-cluster:
 	kind delete cluster
 
 .PHONY: gen-certs
-gen-cert:
-    @echo "\n♻️  Generate certs and TLS secret..."
-	cert_gen/predeploy.sh webhook-server webhook-certs
+gen-certs:
+	@echo "\n♻️  Generate certs and TLS secret..."
+	cert_gen/predeploy.sh webhook-server webhook webhook-certs
 
 .PHONY: deploy-config
 deploy-config:
@@ -45,7 +45,7 @@ delete-config:
 	kubectl delete -f manifests/webhook.yaml
 
 .PHONY: deploy
-deploy: push delete deploy-config
+deploy: push deploy-config
 	@echo "\n🚀 Deploying simple-kubernetes-webhook..."
 	kubectl apply -f manifests/webhook-deployment-service.yaml
 
@@ -55,23 +55,23 @@ delete:
 	kubectl delete -f manifests/webhook-deployment-service.yaml
 
 .PHONY: deployment
-pod:
+deployment:
 	@echo "\n🚀 Deploying test deployment..."
 	kubectl apply -f tests/test-deployments/good-deployment.yaml
 
 .PHONY: delete-deployment
-delete-pod:
-	@echo "\n♻️ Deleting test pod..."
+delete-deployment:
+	@echo "\n♻️ Deleting test deployment..."
 	kubectl delete -f tests/test-deployments/good-deployment.yaml
 
 .PHONY: bad-deployment
-bad-pod:
-	@echo "\n🚀 Deploying \"bad\" pod..."
+bad-deployment:
+	@echo "\n🚀 Deploying \"bad\" deployment..."
 	kubectl apply -f tests/test-deployments/bad-deployment.yaml
 
 .PHONY: delete-bad-deployment
-delete-bad-pod:
-	@echo "\n🚀 Deleting \"bad\" pod..."
+delete-bad-deployment:
+	@echo "\n🚀 Deleting \"bad\" deployment..."
 	kubectl delete -f tests/test-deployments/bad-deployment.yaml
 
 .PHONY: logs

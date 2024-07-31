@@ -20,7 +20,7 @@ secret=$3
 kubectl create namespace $namespace || true
 
 # Populate secrets from certificate file and key.
-./generate-secret.sh $service $namespace $secret
+cert_gen/generate-secret.sh $service $namespace $secret
 
 # Deploy webhook resource.
-kubectl apply -f ../manifests/webhook.yaml
+kubectl apply -f manifests/webhook.yaml
