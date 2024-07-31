@@ -45,7 +45,7 @@ delete-config:
 	kubectl delete -f manifests/webhook.yaml
 
 .PHONY: deploy
-deploy: push deploy-config
+deploy:
 	@echo "\n🚀 Deploying simple-kubernetes-webhook..."
 	kubectl apply -f manifests/webhook-deployment-service.yaml
 
