@@ -111,7 +111,7 @@ func (app *application) Validate(w http.ResponseWriter, r *http.Request) {
 					requestAllowed = true
 					respMsg = "Allowed as label " + "team" + " is present in the Deployment"
 				}
-				logger.Info("Allowed Deployment because label is present", zap.String("Deployment Name", deploy.Name), zap.String("Deployment Namespace", deploy.Namespace))
+				logger.Info("Allowed Deployment because label is present in the Deployment", zap.String("Deployment Name", deploy.Name), zap.String("Deployment Namespace", deploy.Namespace))
 			} else {
 				requestAllowed = false
 				respMsg = "Denied because the Deployment is missing label " + "team"
