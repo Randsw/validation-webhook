@@ -143,10 +143,9 @@ jobs:
                 echo "Validation webhook doesn't reject deployment"
                 exit 1
                 fi
-
     Semantic-Release:
       if: ${{ github.event_name == 'push' }}
-      needs: Test
+      needs: e2e-test
       runs-on: ubuntu-latest
       steps:
           - name: Checkout
