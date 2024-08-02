@@ -9,12 +9,7 @@ import (
 	"github.com/randsw/validationwebhook/cmd"
 	"github.com/randsw/validationwebhook/pkg/logger"
 	"go.uber.org/zap"
-	"k8s.io/client-go/kubernetes"
 )
-
-type application struct {
-	client kubernetes.Interface
-}
 
 func main() {
 	logger.InitLogger()
