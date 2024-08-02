@@ -148,12 +148,17 @@ jobs:
                     make bad-deployment
                     echo EOF
                 } >> "$GITHUB_ENV"
+                echo "bad_result<<EOF" >> $GITHUB_ENV
+                echo $(make bad-deployment) >> $GITHUB_ENV 
+                echo "EOF" >> $GITHUB_ENV
+                echo $bad_result
             continue-on-error: true
             
 
           - name: Check if deployment is rejected
             run: |
-                string=${{ env.bad_result }}
+                echo $bad_result
+                string=$bad_result
                 if [[ $string == *"team"* ]]; then
                 echo "Validation webhook reject deployment"
                 else
