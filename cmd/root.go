@@ -61,7 +61,7 @@ func runWebhookServer(certFile, keyFile string) {
 		panic(err)
 	}
 
-	fmt.Println("Starting webhook server")
+	fmt.Printf("Starting webhook server at port %d", port)
 
 	Handler := app.setupRoutes()
 
