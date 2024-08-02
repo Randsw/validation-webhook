@@ -1,0 +1,163 @@
+name: Lint, Test and Release
+on:
+  push:
+    branches:
+      - 'develop'
+      - 'main'
+    paths:
+      - '**.go'
+      - '**.mod'
+      - '**.sum'
+      - 'Dockerfile'
+  pull_request:
+    branches:
+      - 'develop'
+      - 'main'
+    paths:
+      - '**.go'
+      - '**.mod'
+      - '**.sum'
+      - 'Dockerfile'
+env:
+  GO_VERSION: 1.22
+jobs:
+    # build workflow
+    Test:
+      needs: Lint
+      runs-on: ubuntu-latest
+      steps:
+      - name: set up go ${{env.GO_VERSION}}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{env.GO_VERSION}}
+        id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Run build
+        run: go build -v ./...
+      - name: Test
+        run: go test -v ./...
+    Lint:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check out code into the Go module directory
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 1
+        - name: set up go ${{env.GO_VERSION}}
+          uses: actions/setup-go@v5
+          with:
+            go-version: ${{env.GO_VERSION}}
+            cache: false
+          id: go
+        - name: golangci-lint
+          uses: golangci/golangci-lint-action@v6
+          with:
+            args: --timeout 5m
+    Build-dev:
+      # The type of runner that the job will run on
+      runs-on: ubuntu-latest
+      steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure git to trust the workspace despite the different owner
+        run: git config --global --add safe.directory $(realpath .)
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/randsw/validate-webhook
+          flavor: latest=false
+          tags: |
+            type=sha
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Github Packages
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build image and push to GitHub Container Registry
+        uses: docker/build-push-action@v6
+        with:
+          # relative path to the place where source code with Dockerfile is located
+          context: .
+          # Note: tags has to be all lower-case
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          push: true
+    e2e-test:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Check out code into the Go module directory
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+          - name: Create kind cluster
+            uses: helm/kind-action@v1.10.0
+          - name: Check if cluster is ok
+            run: |
+                kubectl cluster-info
+                kubectl get nodes
+
+          - name: Create certs and webhook configuration
+            run: make gen-certs
+
+          - name: Use dev image for testing
+            run: sed -i "s/latest/${GITHUB_SHA::7}/g" manifests/webhook-deployment-service.yaml
+        
+          - name: Deploy webhook service and deployment
+            run: make deploy
+
+          - name: Deploy webhook configuration
+            run: make deploy-config
+
+          - name: Deploy good deployment
+            run: make deployment
+            id: good-deploy
+
+          - name: Deploy bad deployment
+            run: |
+                echo "bad-result=$(make bad-deployment) || true" >> $GITHUB_ENV
+            id: bad-deploy
+
+          - name: Check if deployment is rejected
+            run: |
+                string=${{ env.DIFF }}
+                if [[ $string == *"team"* ]]; then
+                echo "Validation webhook reject deployment"
+                else
+                echo "Validation webhook doesn't reject deployment"
+                exit 1
+                fi
+
+    Semantic-Release:
+      if: ${{ github.event_name == 'push' }}
+      needs: Test
+      runs-on: ubuntu-latest
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+              fetch-depth: 0
+              token: ${{ secrets.SEMANTIC_TOKEN }}
+          - name: Setup NodeJS
+            uses: actions/setup-node@v4
+  
+          - name: Setup package.json
+            run: echo '{"name":"semantic-release", "devDependencies":{"@semantic-release/changelog":"^6.0.1","@semantic-release/exec":"^6.0.3","@semantic-release/git":"^10.0.1","@semantic-release/release-notes-generator":"^10.0.3","conventional-changelog-conventionalcommits":"^5.0.0","semantic-release":"^21.0.2"}}' > package.json
+          
+          - name: Install dependencies
+            run: npm install
+          
+          - name: Release
+            run: npx semantic-release
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              GH_TOKEN: ${{ secrets.SEMANTIC_TOKEN }}

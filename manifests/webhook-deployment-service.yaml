@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
         - name: webhook-server
-          image: ghcr.io/randsw/validate-webhook
+          image: ghcr.io/randsw/validate-webhook:latest
           imagePullPolicy: Always # this forces k8s to use local image that we loaded via kind
           ports:
             - containerPort: 3000
