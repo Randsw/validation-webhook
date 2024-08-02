@@ -22,7 +22,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "validating-webhook",
 	Short: "Kubernetes validating webhook example",
-	Long: `Example showing how to implement a basic validating webhook in Kubernetes.
+	Long:  `Example showing how to implement a basic validating webhook in Kubernetes.
 
 Example:
 $ validating-webhook --tls-cert <tls_cert> --tls-key <tls_key> --port <port>`,
