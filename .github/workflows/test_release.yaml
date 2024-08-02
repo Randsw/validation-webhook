@@ -111,6 +111,10 @@ jobs:
                 kubectl cluster-info
                 kubectl get nodes
 
+          - name: Wail until all system pods ready
+            run: |
+                kubectl wait --namespace=kube-system --for=condition=Ready --all pods --timeout=600s
+
           - name: Create certs and webhook configuration
             run: make gen-certs
 
@@ -118,21 +122,21 @@ jobs:
             run: |
                 echo "${GITHUB_SHA::7}"
                 sed -i "s/latest/sha-${GITHUB_SHA::7}/g" manifests/webhook-deployment-service.yaml
-                cat manifests/webhook-deployment-service.yaml
         
           - name: Deploy webhook service and deployment
             run: make deploy
 
           - name: Deploy webhook configuration
             run: |
-                cat  manifests/webhook.yaml
                 make deploy-config
+
+          - name: Wail until webhook pods ready
+            run: |
+                kubectl wait --namespace=webhook --for=condition=Ready --all pods --timeout=600s
+                kubectl get po -A -owide
 
           - name: Deploy good deployment
             run: |
-                kubectl get ns
-                kubectl get secret -n webhook
-                kubectl get po -A -owide
                 make deployment
             id: good-deploy
 

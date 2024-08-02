@@ -32,7 +32,7 @@ func GetHealth(w http.ResponseWriter, r *http.Request) {
 	enc := json.NewEncoder(w)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	resp := map[string]string{
-		"app_name": "Validation Webhook",
+		"app_name": "Validation Webhook for Kubernetes",
 		"status":   "OK",
 	}
 	if err := enc.Encode(resp); err != nil {
