@@ -80,7 +80,7 @@ func (app *application) Validate(w http.ResponseWriter, r *http.Request) {
 		var requestAllowed bool
 		var respMsg string
 
-		if len(input.Request.Object.Raw) < 0 {
+		if len(input.Request.Object.Raw) == 0 {
 			writeErrorMessage(w, "empty Deployment object in the request", http.StatusBadRequest)
 			return
 		}

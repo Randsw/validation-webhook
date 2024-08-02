@@ -16,10 +16,6 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-type Application struct {
-	client kubernetes.Interface
-}
-
 func GetKubeConfig() (*rest.Config, error) {
 
 	var err error

@@ -20,6 +20,9 @@ on:
       - 'Dockerfile'
 env:
   GO_VERSION: 1.22
+permissions:
+    contents: write
+    packages: write
 jobs:
     # build workflow
     Test:
@@ -110,7 +113,9 @@ jobs:
             run: make gen-certs
 
           - name: Use dev image for testing
-            run: sed -i "s/latest/${GITHUB_SHA::7}/g" manifests/webhook-deployment-service.yaml
+            run: |
+                echo "${GITHUB_SHA::7}"
+                sed -i "s/latest/${GITHUB_SHA::7}/g" manifests/webhook-deployment-service.yaml
         
           - name: Deploy webhook service and deployment
             run: make deploy

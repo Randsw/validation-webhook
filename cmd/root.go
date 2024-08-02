@@ -10,15 +10,12 @@ import (
 
 	"github.com/randsw/validationwebhook/pkg/kubeapi"
 	"github.com/spf13/cobra"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
 
 var (
 	tlsCert    string
 	tlsKey     string
 	port       int
-	codecs     = serializer.NewCodecFactory(runtime.NewScheme())
 	httplogger = log.New(os.Stdout, "http: ", log.LstdFlags)
 )
 
