@@ -79,7 +79,7 @@ func CheckNamespaceAnnotationTrue(client kubernetes.Interface, annotation, names
 
 	for key, val := range ns.GetAnnotations() {
 		if key == annotation && strings.ToLower(val) == "true" {
-			logger.Info("Found validate annotations on the namespace", zap.String("annotation", annotation), zap.String("value", val), zap.String("namespace", namespace))
+			logger.Info("Found VALIDATE annotations on the namespace", zap.String("annotation", annotation), zap.String("value", val), zap.String("namespace", namespace))
 			return true, nil
 		}
 	}
