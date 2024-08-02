@@ -48,7 +48,7 @@ func init() {
 func runWebhookServer(certFile, keyFile string) {
 	client, err := kubeapi.InitKubeApiConnection()
 	if err != nil {
-		httplogger.Fatalf("Fail to obtain kubeapi client")
+		fmt.Printf("Fail to get kubeapi client")
 		return
 	}
 

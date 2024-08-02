@@ -118,15 +118,22 @@ jobs:
             run: |
                 echo "${GITHUB_SHA::7}"
                 sed -i "s/latest/sha-${GITHUB_SHA::7}/g" manifests/webhook-deployment-service.yaml
+                cat manifests/webhook-deployment-service.yaml
         
           - name: Deploy webhook service and deployment
             run: make deploy
 
           - name: Deploy webhook configuration
-            run: make deploy-config
+            run: |
+                cat  manifests/webhook.yaml
+                make deploy-config
 
           - name: Deploy good deployment
-            run: make deployment
+            run: |
+                kubectl get ns
+                kubectl get secret -n webhook
+                kubectl get po -A -owide
+                make deployment
             id: good-deploy
 
           - name: Deploy bad deployment
