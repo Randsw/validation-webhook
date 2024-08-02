@@ -148,7 +148,6 @@ jobs:
 
           - name: Check if deployment is rejected
             run: |
-                cat temp.txt
                 string=$(cat temp.txt)
                 if [[ $string == *"team"* ]]; then
                 echo "Validation webhook reject deployment"
