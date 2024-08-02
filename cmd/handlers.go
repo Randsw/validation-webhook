@@ -109,7 +109,7 @@ func (app *application) Validate(w http.ResponseWriter, r *http.Request) {
 			if val, ok := deploy.ObjectMeta.Labels["team"]; ok {
 				if val != "" {
 					requestAllowed = true
-					respMsg = "Allowed as label " + "team" + " is present in the Pod"
+					respMsg = "Allowed as label " + "team" + " is present in the Deployment"
 				}
 				logger.Info("Allowed Deployment because label is present", zap.String("Deployment Name", deploy.Name), zap.String("Deployment Namespace", deploy.Namespace))
 			} else {
