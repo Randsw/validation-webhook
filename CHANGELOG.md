@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/Randsw/validation-webhook/compare/1.0.0...1.0.1) (2024-08-02)
+
+
+### 🛠 Fixes
+
+* Test autoreleaser ([ea5a8f4](https://github.com/Randsw/validation-webhook/commit/ea5a8f47393541f04b026346765317c5c0e4b87d))
+
 ## [1.0.0](https://github.com/Randsw/validation-webhook/compare/...1.0.0) (2024-08-02)
 
 
