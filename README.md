@@ -1,4 +1,4 @@
-# Validation webhook for
+# Validation webhook for kubernetes cluster
 
 This is basic implementation of kubernetes validation webhooks
 
