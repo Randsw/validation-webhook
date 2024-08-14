@@ -39,8 +39,13 @@ func TestHTTPRoutesUsingCorrectHTTPMethods(t *testing.T) {
 			wantStatusCode: http.StatusNotFound,
 		},
 		{
-			name:           "test /validate with POST method",
+			name:           "test /validate with GET method",
 			path:           "/validate", // this exists but only POST method is allowed
+			wantStatusCode: http.StatusMethodNotAllowed,
+		},
+		{
+			name:           "test /mutate with GET method",
+			path:           "/mutate", // this exists but only POST method is allowed
 			wantStatusCode: http.StatusMethodNotAllowed,
 		},
 	}
@@ -81,7 +86,7 @@ func TestHTTPRoutesUsingCorrectHTTPMethods(t *testing.T) {
 }
 
 // TestHTTPRoutePOSTMethodValidRequest - Test with valid Deployment namespace, valid Admission review object
-func TestHTTPRoutePOSTMethodValidRequest(t *testing.T) {
+func TestHTTPValidateRoutePOSTMethodValidRequest(t *testing.T) {
 	logger.InitLogger()
 	client := fake.NewSimpleClientset()
 
@@ -151,6 +156,85 @@ func TestHTTPRoutePOSTMethodValidRequest(t *testing.T) {
 	}
 
 	wantMessage := "skipping validation as annotationKey validate is missing or set to false"
+	gotMessage := output.Response.Result.Message
+
+	if wantMessage != gotMessage {
+		t.Errorf("Mismatch in status message - want=%q, got=%q", wantMessage, gotMessage)
+		return
+	}
+
+}
+
+func TestHTTPMutateRoutePOSTMethodValidRequest(t *testing.T) {
+	logger.InitLogger()
+	client := fake.NewSimpleClientset()
+
+	app := &application{
+		client: client,
+	}
+
+	srv := httptest.NewServer(app.setupRoutes())
+	defer srv.Close()
+
+	f, err := os.Open("../tests/invalid-request.json")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	url := fmt.Sprintf("%s/mutate", srv.URL)
+
+	ns := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "webhook-demo",
+		},
+	}
+
+	ctx := context.Background()
+
+	_, err = client.CoreV1().Namespaces().Create(ctx, ns, metav1.CreateOptions{})
+
+	if err != nil {
+		t.Fatal("error creating namespace", err)
+	}
+
+	resp, err := http.Post(url, "application/json", f)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Fatal(err)
+		}
+	}()
+
+	body, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//t.Log(string(body))
+
+	output := &admissionv1.AdmissionReview{}
+
+	if err := json.Unmarshal(body, output); err != nil {
+		t.Fatalf("error unmarshaling response body into AdmissionReview object - %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("HTTP post with valid AdmissionReview failed, returned status code was not 200OK")
+		return
+	}
+
+	if !output.Response.Allowed {
+		t.Errorf("Admission response - want=%v, got=%v", output.Response.Allowed, true)
+		return
+	}
+
+	wantMessage := "skipping mutation as annotationKey mutate is missing or set to false"
 	gotMessage := output.Response.Result.Message
 
 	if wantMessage != gotMessage {

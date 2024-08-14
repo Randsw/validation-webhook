@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/randsw/validationwebhook/pkg/kubeapi"
 	"github.com/randsw/validationwebhook/pkg/logger"
@@ -17,6 +18,12 @@ import (
 
 type application struct {
 	client kubernetes.Interface
+}
+
+type patchOperation struct {
+	Op    string `json:"op"`
+	Path  string `json:"path"`
+	Value any    `json:"value,omitempty"`
 }
 
 func writeErrorMessage(w http.ResponseWriter, msg string, code int) {
@@ -146,9 +153,8 @@ func (app *application) Validate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func (app *application) Mutate(w http.ResponseWriter, r *http.Request) {
-
+	var patch []patchOperation
 	if r.Method != http.MethodPost {
 		logger.Error("Only POST method allowed")
 		writeErrorMessage(w, "Only POST method allowed", http.StatusMethodNotAllowed)
@@ -163,7 +169,7 @@ func (app *application) Mutate(w http.ResponseWriter, r *http.Request) {
 
 	// Webhooks are sent a POST request, with Content-Type: application/json, with
 	// an AdmissionReview API object in the admission.k8s.io API group serialized to JSON as the body.
-	input := admissionv1.AdmissionReview{} //#TODO
+	input := admissionv1.AdmissionReview{}
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 
@@ -206,29 +212,47 @@ func (app *application) Mutate(w http.ResponseWriter, r *http.Request) {
 		}
 		// if the annotationKey was not preset or was set to false
 		if !ok {
-			logger.Info("skipping validation of the Deployment", zap.String("Deployment Name", deploy.Name), zap.String("Deployment Namespace", deploy.Namespace))
+			logger.Info("skipping mutation of the Deployment", zap.String("Deployment Name", deploy.Name), zap.String("Deployment Namespace", deploy.Namespace))
 			requestAllowed = true
-			respMsg = "skipping validation as annotationKey " + "mutate" + " is missing or set to false"
+			respMsg = "skipping mutation as annotationKey " + "mutate" + " is missing or set to false"
 		}
 
 		if ok && len(deploy.ObjectMeta.Labels) > 0 {
-
-			if val, ok := deploy.ObjectMeta.Labels["team"]; ok {
-				if val != "" {
-					requestAllowed = true
-					respMsg = "Allowed as label " + "team" + " is present in the Deployment"
+			prefix := "ghcr.io/randsw"
+			for i, container := range deploy.Spec.Template.Spec.Containers {
+				if !strings.HasPrefix(container.Image, prefix) {
+					imageSlice := strings.Split(container.Image, "/")
+					newImage := strings.Join([]string{prefix, imageSlice[len(imageSlice)-1]}, "/")
+					patch = append(patch, patchOperation{
+						Op:    "replace",
+						Path:  fmt.Sprintf("spec/template/spec/containers/%d/image", i),
+						Value: newImage,
+					})
+					logger.Info("Mutating deployment container", zap.String("Deployment Name", deploy.Name),
+						zap.String("Deployment Namespace", deploy.Namespace),
+						zap.String("Container Name", container.Name))
+					respMsg = "Mutating container image"
+				} else {
+					respMsg = "skipping mutating, all container image correct"
 				}
-				logger.Info("Allowed Deployment because label is present in the Deployment", zap.String("Deployment Name", deploy.Name), zap.String("Deployment Namespace", deploy.Namespace))
-			} else {
-				requestAllowed = false
-				respMsg = "Denied because the Deployment is missing label " + "team"
 			}
+		}
+
+		patchByte, err := json.Marshal(patch)
+		if err != nil {
+			writeErrorMessage(w, "Unable create patch for mutating "+err.Error(), http.StatusInternalServerError)
+			return
 		}
 		output := admissionv1.AdmissionReview{
 
 			Response: &admissionv1.AdmissionResponse{
 				UID:     input.Request.UID,
 				Allowed: requestAllowed,
+				Patch:   patchByte,
+				PatchType: func() *admissionv1.PatchType {
+					pt := admissionv1.PatchTypeJSONPatch
+					return &pt
+				}(),
 				Result: &metav1.Status{
 					Message: respMsg,
 				},

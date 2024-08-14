@@ -160,3 +160,136 @@ func TestValidateWebhookHandler(t *testing.T) {
 	}
 
 }
+
+func TestMutationWebhookHandler(t *testing.T) {
+
+	tt := []struct {
+		name            string
+		allowed         bool
+		sourceJsonFile  string
+		annotationKey   string
+		annotationValue string
+		statusCode      int
+		message         string
+		isEmptyPatch    bool
+	}{
+		{
+			name:            "Deployment has correct image name",
+			allowed:         true,
+			sourceJsonFile:  "../tests/correct-image-request.json",
+			annotationKey:   "mutate",
+			annotationValue: "true",
+			statusCode:      http.StatusOK,
+			message:         "skipping mutating, all container image correct",
+			isEmptyPatch:    true,
+		},
+		{
+			name:            "Deployment has incorrect image name",
+			allowed:         true,
+			sourceJsonFile:  "../tests/incorrect-image-request.json",
+			annotationKey:   "mutate",
+			annotationValue: "true",
+			statusCode:      http.StatusOK,
+			message:         "Mutating container image",
+			isEmptyPatch:    false,
+		},
+		{
+			name:            "Deployment has incorrect image but annotation is set to false",
+			allowed:         true,
+			sourceJsonFile:  "../tests/incorrect-image-request.json",
+			annotationKey:   "mutate",
+			annotationValue: "false",
+			statusCode:      http.StatusOK,
+			message:         "skipping mutation as annotationKey mutate is missing or set to false",
+			isEmptyPatch:    true,
+		},
+		{
+			name:            "Test with empty Admission request object",
+			allowed:         false, // this field is not checked as the response does not contain valid Response
+			sourceJsonFile:  "../tests/empty-request.json",
+			annotationKey:   "mutate",
+			annotationValue: "false",
+			statusCode:      http.StatusBadRequest,
+		},
+	}
+	logger.InitLogger()
+	for _, tc := range tt {
+		tc := tc // capture inner variable
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := fake.NewSimpleClientset()
+
+			app := &application{
+				client: client,
+			}
+
+			testAnnotations := make(map[string]string)
+
+			testAnnotations[tc.annotationKey] = tc.annotationValue
+
+			CreateNamespace(t, "webhook-demo", testAnnotations, client)
+
+			f, err := os.Open(tc.sourceJsonFile)
+
+			defer func() {
+				if err := f.Close(); err != nil {
+					t.Fatal(err)
+				}
+			}()
+
+			if err != nil {
+				t.Fatalf("Failed to load input json file %v", err.Error())
+			}
+
+			rr := httptest.NewRecorder()
+
+			handler := http.HandlerFunc(app.Mutate)
+
+			// send Admission review loaded from the json file
+			req, err := http.NewRequest("POST", "/mutate", f)
+			req.Header.Set("Content-Type", "application/json")
+
+			if err != nil {
+				t.Errorf("Failed to create the request object %v", err.Error())
+				return
+			}
+
+			handler.ServeHTTP(rr, req)
+
+			t.Logf("status code= %v", rr.Code)
+
+			if rr.Code != tc.statusCode {
+				t.Errorf("HTTP status code mismatch want=%v, got=%v", tc.statusCode, rr.Code)
+				return
+			}
+
+			// we only marshal valid json responses from the server
+			// if we did not receive a valid admissionv1.AdmissionReview{} object
+			// then we don't need to decode it
+			if rr.Code != 200 {
+				return
+			}
+
+			result := admissionv1.AdmissionReview{}
+			err = json.NewDecoder(rr.Body).Decode(&result)
+
+			if err != nil {
+				t.Errorf("Failed to decode the Json response to AdmissionReview object %v", err.Error())
+				return
+			}
+
+			//t.Log(result)
+
+			admissionReviewMessage := result.Response.Result.Message
+			isAdmissionReviewEmptyPatch := len(result.Response.Patch) < 5 // Empty JSON has len=4
+
+			if admissionReviewMessage != tc.message || isAdmissionReviewEmptyPatch != tc.isEmptyPatch {
+				t.Errorf("AdmissionReview.Request.Result.Message field: want=%v got=%v", tc.message, admissionReviewMessage)
+				t.Errorf("Result.Response.Patch is Empty: want=%v got=%v", tc.isEmptyPatch, isAdmissionReviewEmptyPatch)
+			}
+
+		})
+	}
+
+}

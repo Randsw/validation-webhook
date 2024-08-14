@@ -7,5 +7,6 @@ func (app *application) setupRoutes() *mux.Router {
 	mux.HandleFunc("/healthz", GetHealth)
 	mux.HandleFunc("/healthcheck", GetHealth)
 	mux.HandleFunc("/validate", app.Validate)
+	mux.HandleFunc("/mutate", app.Mutate)
 	return mux
 }
