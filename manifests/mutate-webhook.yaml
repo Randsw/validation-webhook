@@ -1,0 +1,21 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: "mutate.webhooks.svc.cluster.local"
+webhooks:
+  - name: "mutate.webhooks.svc.cluster.local"
+    rules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments"]
+        scope: "*"
+    clientConfig:
+      service:
+        namespace: "webhook"
+        name: "webhook-server"
+        path: "/mutate"
+      caBundle: "CA_BUNDLE"
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
+    timeoutSeconds: 5

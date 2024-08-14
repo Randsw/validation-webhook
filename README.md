@@ -29,7 +29,7 @@ In this example we want that created or updated deployment in namespace what mar
 
 - Build webhook server
   `docker build -t <your-repository>:<your-tag> .`
-  Push builded image to your favorite image repository. Or load to your kind cluster -  https://kind.sigs.k8s.io/docs/user/quick-start/#loading-an-image-into-your-cluster
+  Push builded image to your favorite image repository. Or load to your kind cluster -  <https://kind.sigs.k8s.io/docs/user/quick-start/#loading-an-image-into-your-cluster>
 
 - Generate sefl-signed certificate for webhook. Kubernetes control plane works only over secured connection via https, so we need  certificate and key for our webhook. And also we need to provide CA certificate bundle to kubernetes conrol plane so it can trust our server certificate
 All this operation automated by bash script:
@@ -45,7 +45,6 @@ where:
   Deploy manifests:
   `kubectl apply -f manifests/`
   Verify that webhook server pod is healthy and running
-
 
 ## Test
 

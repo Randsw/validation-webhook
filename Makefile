@@ -38,6 +38,7 @@ gen-certs:
 deploy-config:
 	@echo "\n⚙️  Applying cluster config..."
 	kubectl apply -f manifests/webhook.yaml
+	kubectl apply -f manifests/mutate-webhook.yaml
 
 .PHONY: delete-config
 delete-config:

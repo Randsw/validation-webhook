@@ -57,3 +57,4 @@ CA_BUNDLE=`cat ${tmpdir}/ca.crt | base64 | tr -d '\n'`
 # Add '' after -i to run this on Mac.
 # sed -i '' "s/CA_BUNDLE/$CA_BUNDLE/g" webhook.yaml
 sed -i "s/CA_BUNDLE/$CA_BUNDLE/g" manifests/webhook.yaml
+sed -i "s/CA_BUNDLE/$CA_BUNDLE/g" manifests/mutate-webhook.yaml
