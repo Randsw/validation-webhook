@@ -140,10 +140,21 @@ jobs:
                 make deployment
             id: good-deploy
 
+          - name: Check mutation webhook
+            run: |
+                name=$(kubectl get deploy nginx-deployment -n webhook -o jsonpath='{.spec.template.spec.containers[0].image}')
+                echo $name
+                if [[ $name == *"ghcr.io"* ]]; then
+                echo "Mutatation webhook change deployment spec"
+                else
+                echo "Deployment spec not changed"
+                exit 1
+                fi
+
           - name: Deploy bad deployment
             id: bad-deploy
             run: |
-                make bad-deployment >> temp.txt 2>&1
+                make bad-deployment > temp.txt 2>&1
             continue-on-error: true
 
           - name: Check if deployment is rejected
