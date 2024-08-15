@@ -142,7 +142,7 @@ jobs:
 
           - name: Check mutation webhook
             run: |
-                name=$(kubectl get deploy nginx-deployment -n webhook -o jsonpath='{.spec.template.spec.containers[0].image}')
+                name=$(kubectl get deploy nginx-deployment -n webhook-demo -o jsonpath='{.spec.template.spec.containers[0].image}')
                 echo $name
                 if [[ $name == *"ghcr.io"* ]]; then
                 echo "Mutatation webhook change deployment spec"

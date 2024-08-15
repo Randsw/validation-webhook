@@ -233,7 +233,7 @@ func (app *application) Mutate(w http.ResponseWriter, r *http.Request) {
 						zap.String("Container Name", container.Name))
 					respMsg = "Mutating container image"
 				} else {
-					respMsg = "skipping mutating, all container image correct"
+					respMsg = "Skipping mutating, all container image correct"
 				}
 			}
 			requestAllowed = true
