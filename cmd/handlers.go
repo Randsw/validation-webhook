@@ -236,6 +236,7 @@ func (app *application) Mutate(w http.ResponseWriter, r *http.Request) {
 					respMsg = "skipping mutating, all container image correct"
 				}
 			}
+			requestAllowed = true
 		}
 
 		patchByte, err := json.Marshal(patch)
