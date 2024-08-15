@@ -180,7 +180,7 @@ func TestMutationWebhookHandler(t *testing.T) {
 			annotationKey:   "mutate",
 			annotationValue: "true",
 			statusCode:      http.StatusOK,
-			message:         "skipping mutating, all container image correct",
+			message:         "Skipping mutating, all container image correct",
 			isEmptyPatch:    true,
 		},
 		{
