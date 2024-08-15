@@ -1,6 +1,6 @@
-# Validation webhook for kubernetes cluster
+# Validation and mutation webhook for kubernetes cluster
 
-This is basic implementation of kubernetes validation webhooks
+This is basic implementation of kubernetes validation and mutation webhooks
 
 ## Description
 
@@ -11,6 +11,13 @@ For example:
     - Allowed image repository in pod spec
 
 In this example we want that created or updated deployment in namespace what marked with annotation `validate: "true"` has label `team`.
+
+Mutation webhook used for patch manifest after it applied to kubernetes cluster
+For example:
+    - Add init/sidecar container
+    - Force to use private image repository
+    - Inject correct service account
+In this example we want that all container image in deployment downloaded from private image repository `ghcr.io/randsw/` if namespace marked with annotation `mutate: "true"`
 
 ## Instalation
 
@@ -41,7 +48,8 @@ where:
 
 - Deploy webhook server to kind cluster
   Open `manifests/webhook-deployment-service.yaml` and change namespace field in `deployment`, `serviceAccount`, `service` resources and name of `service` resource to the one you specified when generating certificates.
-  Also change `service` namespace and name fields in `ValidatingWebhookConfiguration` in `manifests/webhook.yaml`
+  Change `service` namespace and name fields in `ValidatingWebhookConfiguration` in `manifests/webhook.yaml`
+  Change `service` namespace and name fields in `MutatingWebhookConfiguration` in `manifests/mutate-webhook.yaml`
   Deploy manifests:
   `kubectl apply -f manifests/`
   Verify that webhook server pod is healthy and running
@@ -52,12 +60,19 @@ where:
 `kubectl apply -f tests/test-deployments/good-deployment.yaml`
 Deployment created without any problem
 
+- Check image name in deployment spec
+`kubectl describe deployment nginx-deployment -n webhook-demo -o jsonpath='{.spec.template.spec.containers[0].image}'`
+Image name has prefix `ghcr.io/randsw` after mutation
+  
+  ```sh
+  ghcr.io/randsw/nginx
+  ```
+
 - Aplly "bad" deployment
 `kubectl apply -f tests/test-deployments/bad-deployment.yaml`
 Deployment is rejected by validation controller
 
-```
+  ```sh
+  Error from server: error when creating "tests/test-deployments/bad-deployment.yaml": admission webhook "webhook-server.webhook.svc" denied the request: Denied because the Deployment is missing label team
 
-Error from server: error when creating "tests/test-deployments/bad-deployment.yaml": admission webhook "webhook-server.webhook.svc" denied the request: Denied because the Deployment is missing label team
-
-```
+  ```
