@@ -225,7 +225,7 @@ func (app *application) Mutate(w http.ResponseWriter, r *http.Request) {
 					newImage := strings.Join([]string{prefix, imageSlice[len(imageSlice)-1]}, "/")
 					patch = append(patch, patchOperation{
 						Op:    "replace",
-						Path:  fmt.Sprintf("spec/template/spec/containers/%d/image", i),
+						Path:  fmt.Sprintf("/spec/template/spec/containers/%d/image", i),
 						Value: newImage,
 					})
 					logger.Info("Mutating deployment container", zap.String("Deployment Name", deploy.Name),
