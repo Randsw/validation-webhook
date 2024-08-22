@@ -1,3 +1,30 @@
+## [1.1.0](https://github.com/Randsw/validation-webhook/compare/1.0.1...1.1.0) (2024-08-15)
+
+
+### 📔 Docs
+
+* Add documentation ([05f21bd](https://github.com/Randsw/validation-webhook/commit/05f21bd3bfb61a0020c8f5163ba16df799428ce1))
+* Fix  documentation ([962fad6](https://github.com/Randsw/validation-webhook/commit/962fad6c88924e5544b13cfd2b736e17b9c73b9e))
+
+
+### 🦊 CI/CD
+
+* Add mutation webhook test to gh-actions ([d49538d](https://github.com/Randsw/validation-webhook/commit/d49538d3ac8176d7c9b6f0467b2c7ffa572e1808))
+
+
+### 🚀 Features
+
+* Add mutate handler with tests ([3dd14c8](https://github.com/Randsw/validation-webhook/commit/3dd14c887d799b10dc44a40e4dc706b12ae9bd02))
+* Add mutating configuration ([5345104](https://github.com/Randsw/validation-webhook/commit/5345104bb5ac33ff07a8f7d881afbe8128118b8a))
+
+
+### 🛠 Fixes
+
+* Allow request if container image is mutated ([cae5e75](https://github.com/Randsw/validation-webhook/commit/cae5e75d24df048401bbee16e4f895c265f65605))
+* Fix deployment namespace in gh-actions ([8e65910](https://github.com/Randsw/validation-webhook/commit/8e659100a067a203847aae8375d22f684d65deea))
+* Fix path to replace ([a5efa1d](https://github.com/Randsw/validation-webhook/commit/a5efa1de12443182db1eff08e68ee4173ca2f9fb))
+* Fix tests ([e4a705f](https://github.com/Randsw/validation-webhook/commit/e4a705fd16355a82efe08aa3e40894101faee302))
+
 ## [1.0.1](https://github.com/Randsw/validation-webhook/compare/1.0.0...1.0.1) (2024-08-02)
 
 
