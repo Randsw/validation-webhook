@@ -111,9 +111,9 @@ func (app *application) Validate(w http.ResponseWriter, r *http.Request) {
 			respMsg = "skipping validation as annotationKey " + "validate" + " is missing or set to false"
 		}
 
-		if ok && len(deploy.ObjectMeta.Labels) > 0 {
+		if ok && len(deploy.Labels) > 0 {
 
-			if val, ok := deploy.ObjectMeta.Labels["team"]; ok {
+			if val, ok := deploy.Labels["team"]; ok {
 				if val != "" {
 					requestAllowed = true
 					respMsg = "Allowed as label " + "team" + " is present in the Deployment"
@@ -134,8 +134,8 @@ func (app *application) Validate(w http.ResponseWriter, r *http.Request) {
 				},
 			},
 		}
-		output.TypeMeta.Kind = input.TypeMeta.Kind
-		output.TypeMeta.APIVersion = input.TypeMeta.APIVersion
+		output.Kind = input.Kind
+		output.APIVersion = input.APIVersion
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -217,7 +217,7 @@ func (app *application) Mutate(w http.ResponseWriter, r *http.Request) {
 			respMsg = "skipping mutation as annotationKey " + "mutate" + " is missing or set to false"
 		}
 
-		if ok && len(deploy.ObjectMeta.Labels) > 0 {
+		if ok && len(deploy.Labels) > 0 {
 			prefix := "ghcr.io/randsw"
 			for i, container := range deploy.Spec.Template.Spec.Containers {
 				if !strings.HasPrefix(container.Image, prefix) {
@@ -259,8 +259,8 @@ func (app *application) Mutate(w http.ResponseWriter, r *http.Request) {
 				},
 			},
 		}
-		output.TypeMeta.Kind = input.TypeMeta.Kind
-		output.TypeMeta.APIVersion = input.TypeMeta.APIVersion
+		output.Kind = input.Kind
+		output.APIVersion = input.APIVersion
 
 		w.Header().Set("Content-Type", "application/json")
 
