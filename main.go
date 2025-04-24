@@ -29,7 +29,6 @@ func main() {
 		// close other resources
 		done <- true
 		os.Exit(0)
-
 	}()
 	cmd.Execute()
 }
