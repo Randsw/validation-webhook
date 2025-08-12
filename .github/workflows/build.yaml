@@ -12,7 +12,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Configure git to trust the workspace despite the different owner
@@ -52,7 +52,7 @@ jobs:
         runs-on: "ubuntu-latest"
         steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
             fetch-depth: 0
         - name: Check if tag belong to commit in main branch
