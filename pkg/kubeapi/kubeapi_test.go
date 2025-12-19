@@ -65,7 +65,7 @@ func Test_application_CheckNamespaceAnnotationTrue(t *testing.T) {
 					},
 				},
 			}
-			client := fake.NewSimpleClientset()
+			client := fake.NewClientset()
 			if tt.createNameSpace {
 
 				_, err := client.CoreV1().Namespaces().Create(context.Background(), &namespace, metav1.CreateOptions{})
