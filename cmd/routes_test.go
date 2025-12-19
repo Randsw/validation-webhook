@@ -88,7 +88,7 @@ func TestHTTPRoutesUsingCorrectHTTPMethods(t *testing.T) {
 // TestHTTPRoutePOSTMethodValidRequest - Test with valid Deployment namespace, valid Admission review object
 func TestHTTPValidateRoutePOSTMethodValidRequest(t *testing.T) {
 	logger.InitLogger()
-	client := fake.NewSimpleClientset()
+	client := fake.NewClientset()
 
 	app := &application{
 		client: client,
@@ -167,7 +167,7 @@ func TestHTTPValidateRoutePOSTMethodValidRequest(t *testing.T) {
 
 func TestHTTPMutateRoutePOSTMethodValidRequest(t *testing.T) {
 	logger.InitLogger()
-	client := fake.NewSimpleClientset()
+	client := fake.NewClientset()
 
 	app := &application{
 		client: client,

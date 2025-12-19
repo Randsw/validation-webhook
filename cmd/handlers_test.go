@@ -87,7 +87,7 @@ func TestValidateWebhookHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client := fake.NewSimpleClientset()
+			client := fake.NewClientset()
 
 			app := &application{
 				client: client,
@@ -218,7 +218,7 @@ func TestMutationWebhookHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client := fake.NewSimpleClientset()
+			client := fake.NewClientset()
 
 			app := &application{
 				client: client,
